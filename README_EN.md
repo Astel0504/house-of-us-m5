@@ -26,9 +26,24 @@ Models change. Providers change. Context gets compressed. Processes fail and res
 > Runtime policy decides what is accepted.
 > Ephemeral context may change; durable state must have identity, ancestry, scope, and evidence.
 
-M5 is the first fully frozen and verified milestone of that system.
+M5 is the final production-integration and acceptance stage of this staged continuity roadmap.
 
 This repository contains its **sanitized public portfolio snapshot**: the reviewable M5 continuity core and deterministic local tests.
+
+---
+
+## From M0 to M5
+
+“M5” is not simply version five; it is the final production-integration and acceptance stage of House of Us's staged continuity-engineering roadmap. Each milestone adds a different layer—from a trusted baseline, through a safe carrier and authoritative continuity, to context lifecycle, long-term memory integration, and finally production validation.
+
+| Stage | Focus | What changed | Validation boundary |
+| --- | --- | --- | --- |
+| M0 | Independent re-baseline | Re-established a reviewable Generation-1 / Standing Root production footing with exact identities, closure, and evidence. | Deployed baseline; independent review PASS |
+| M1 | Protected authored carrier | Routed model-proposed continuity candidates through ordinary House Talk into one protected operation, durable outbox, and complete-unit binding. | Real Talk path; shadow/non-authoritative; no authoritative semantic application |
+| M2 | Authoritative Working Set & cross-window continuity | Made the Working Set the singular continuity authority with scoped projections, atomic application, predecessor binding, replay safety, and rollback. | Local/default-off candidate; exact-bound rehearsal; production application deferred to M5 |
+| M3 | Hot / warm / cold context & compaction | Added deterministic context lifecycle, compaction, cold retrieval, exact anchors, budget control, and restart-safe transitions. | Local/default-off candidate; zero-transport intercepted proof |
+| M4 | Frozen Memory G integration | Connected Memory G, Vault, exact recall, Sources, M2, and M3 with separate authority, provenance, eligibility, and budget boundaries. | Local/default-off candidate; production integration deferred to M5 |
+| M5 | Production integration & final acceptance | Integrated the M2/M3/M4 producer bridges and reviewed corrections into production, then completed live validation, final acceptance, and authorized default activation. | Live proof chain; independent final review; activated baseline frozen |
 
 ---
 

@@ -1,3 +1,5 @@
+<div align="center">
+
 # House of Us
 
 ### 为长期 AI 伴侣构建的连续性系统
@@ -5,6 +7,8 @@
 **Local-first · Provider-neutral · Fail-closed · Auditable**
 
 [简体中文](README.md) · [English](README_EN.md)
+
+</div>
 
 ---
 
@@ -21,9 +25,24 @@
 > 模型输出提出候选，运行时决定是否接受；\
 > 临时上下文可以变化，持久状态必须有身份、有前序、有作用域，也必须能够解释自己为什么发生。
 
-M5 是这套系统第一个完成冻结与验证的完整里程碑。
+M5 是这条分阶段连续性工程路线的最终生产集成与验收阶段。
 
 本仓库保存的是 **M5 的公开作品集版本**：一套经过脱敏、可以独立阅读和运行本地测试的 continuity core。
+
+---
+
+## 从 M0 到 M5
+
+这里的 “M5” 不是简单的版本号，而是 House of Us 这条分阶段连续性工程路线的最终生产集成与验收阶段。每个阶段解决不同层次的问题：从稳定基线，到安全承载，再到权威连续性、上下文生命周期、长期记忆整合，最后汇入真实生产路径。
+
+| 阶段 | 重点 | 带来的变化 | 验证边界 |
+| --- | --- | --- | --- |
+| M0 | 独立重新基线 | 在健康的 Generation-1 / Standing Root 生产基础上，建立可复核的身份、闭环与证据基线。 | 部署基线与独立复核 PASS |
+| M1 | 受保护的 authored carrier | 让模型输出以 candidate 进入普通 House Talk，经运行时评估后生成一次受保护的连续性操作与 durable outbox。 | 真实 Talk 路径；shadow/non-authoritative，未做权威语义应用 |
+| M2 | 权威 Working Set 与跨窗口连续性 | 将连续性落到单一权威 Working Set，加入作用域、前序、原子应用、重放安全和跨窗口投影。 | local/default-off candidate；精确绑定 rehearsal，生产应用留到 M5 |
+| M3 | hot / warm / cold 上下文与 compaction | 建立热上下文、温压缩 episode、冷检索历史的确定性生命周期，并保留 exact anchors。 | local/default-off candidate；通过零传输拦截证明 |
+| M4 | 冻结 Memory G integration | 将 Memory G、Vault、exact recall、Sources 与 M2/M3 上下文连接，保留各自 authority、来源和边界。 | local/default-off candidate；生产整合留到 M5 |
+| M5 | 生产集成与最终验收 | 将 M2/M3/M4 的 producer bridges 与经过复核的修正接入生产，完成 live validation、final acceptance 与授权后的默认激活。 | live proof、独立最终复核、激活后的基线冻结 |
 
 ---
 
