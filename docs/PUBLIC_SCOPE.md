@@ -24,4 +24,4 @@ The omissions preserve the meaning of the included core without exposing private
 
 ## Export-only adjustment
 
-One historical attestation string that pointed to a private absolute path was replaced with an explicit `examples/private-root-not-included/...` marker. No runtime provider, persistence, or semantic behavior was intentionally changed for this export.
+Two export-only sanitizations were applied: one historical attestation string that pointed to a private absolute path was replaced with an explicit `examples/private-root-not-included/...` marker, and test-only credential-shaped labels were renamed to `TEST_ONLY_...` with one synthetic title made explicitly restricted. No runtime provider, persistence, or semantic behavior was intentionally changed for this export.
