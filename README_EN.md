@@ -1,8 +1,8 @@
 <div align="center">
 
-# House of Us
+# House of Us — M5 Continuity Core
 
-### Continuity infrastructure for a long-lived AI companion
+### A public snapshot of House of Us continuity & context infrastructure
 
 **Local-first · Provider-neutral · Fail-closed · Auditable**
 
@@ -20,21 +20,21 @@ A long-lived AI cannot rely on chat history alone.
 
 Models change. Providers change. Context gets compressed. Processes fail and restart. Runtime state evolves. At the same time, durable identity and memory should not be rewritten simply because one model response happened to say something.
 
-**House of Us** treats continuity as an engineering problem rather than only a prompting problem:
-
 > Model output proposes a candidate.
 > Runtime policy decides what is accepted.
 > Ephemeral context may change; durable state must have identity, ancestry, scope, and evidence.
 
-M5 is the final production-integration and acceptance stage of this staged continuity roadmap.
+**House of Us** is a larger private, local-first AI companion runtime. This repository presents one major engineering program inside it: moving long-term AI continuity from chat history and prompt-level behavior into verifiable, recoverable, durable runtime infrastructure.
 
-This repository contains its **sanitized public portfolio snapshot**: the reviewable M5 continuity core and deterministic local tests.
+That program progressed through M0–M5. **M5 · Continuity Activation** is its final production-integration and acceptance stage.
+
+This repository contains the sanitized, reviewable continuity & context core from the frozen M5 state—not the whole House.
 
 ---
 
 ## From M0 to M5
 
-“M5” is not simply version five; it is the final production-integration and acceptance stage of House of Us's staged continuity-engineering roadmap. Each milestone adds a different layer—from a trusted baseline, through a safe carrier and authoritative continuity, to context lifecycle, long-term memory integration, and finally production validation.
+Here, “M5” is not a House of Us version number. It is the final stage—**M5 · Continuity Activation**—of the Continuity Program, the staged continuity-engineering roadmap inside House of Us. Each milestone adds a different layer—from a trusted baseline, through a safe carrier and authoritative continuity, to context lifecycle, long-term memory integration, and finally production validation.
 
 | Stage | Focus | What changed | Validation boundary |
 | --- | --- | --- | --- |
@@ -43,7 +43,7 @@ This repository contains its **sanitized public portfolio snapshot**: the review
 | M2 | Authoritative Working Set & cross-window continuity | Made the Working Set the singular continuity authority with scoped projections, atomic application, predecessor binding, replay safety, and rollback. | Local/default-off candidate; exact-bound rehearsal; production application deferred to M5 |
 | M3 | Hot / warm / cold context & compaction | Added deterministic context lifecycle, compaction, cold retrieval, exact anchors, budget control, and restart-safe transitions. | Local/default-off candidate; zero-transport intercepted proof |
 | M4 | Frozen Memory G integration | Connected Memory G, Vault, exact recall, Sources, M2, and M3 with separate authority, provenance, eligibility, and budget boundaries. | Local/default-off candidate; production integration deferred to M5 |
-| M5 | Production integration & final acceptance | Integrated the M2/M3/M4 producer bridges and reviewed corrections into production, then completed live validation, final acceptance, and authorized default activation. | Live proof chain; independent final review; activated baseline frozen |
+| M5 · Continuity Activation | Production integration & final acceptance | Integrated the M2/M3/M4 producer bridges and reviewed corrections into production, then completed live validation, final acceptance, and authorized default activation. | Live proof chain; independent final review; activated baseline frozen |
 
 ---
 

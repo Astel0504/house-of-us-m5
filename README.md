@@ -1,8 +1,8 @@
 <div align="center">
 
-# House of Us
+# House of Us — M5 Continuity Core
 
-### 为长期 AI 伴侣构建的连续性系统
+### House of Us 的连续性与上下文基础设施公开快照
 
 **Local-first · Provider-neutral · Fail-closed · Auditable**
 
@@ -20,20 +20,20 @@
 
 模型可能更换，provider 可能变化，会话会被截断，context 会被压缩，运行时可能失败或重启；与此同时，长期状态不能因为一次模型输出就被随意改写。
 
-**House of Us** 因此把连续性（continuity）当作一个工程问题，而不是单纯的 prompt 问题：
-
 > 模型输出提出候选，运行时决定是否接受；\
 > 临时上下文可以变化，持久状态必须有身份、有前序、有作用域，也必须能够解释自己为什么发生。
 
-M5 是这条分阶段连续性工程路线的最终生产集成与验收阶段。
+**House of Us** 是一个更大的、本地优先的 AI companion runtime。本仓库展示其中一条核心工程路线：如何把长期 AI 的 continuity 从聊天记录和 prompt 层，逐步推进为可验证、可恢复、可持久化的 runtime infrastructure。
 
-本仓库保存的是 **M5 的公开作品集版本**：一套经过脱敏、可以独立阅读和运行本地测试的 continuity core。
+这条路线内部以 M0–M5 分阶段推进；其中 **M5 · 连续性激活（Continuity Activation）** 是最终的生产集成与验收阶段。
+
+本仓库保存的是这条路线在冻结 M5 状态下可安全公开、独立审阅的 continuity & context core，而不是整个 House。
 
 ---
 
 ## 从 M0 到 M5
 
-这里的 “M5” 不是简单的版本号，而是 House of Us 这条分阶段连续性工程路线的最终生产集成与验收阶段。每个阶段解决不同层次的问题：从稳定基线，到安全承载，再到权威连续性、上下文生命周期、长期记忆整合，最后汇入真实生产路径。
+这里的 “M5” 不是 House of Us 的版本号，而是其中 Continuity Program（连续性工程路线）的最终阶段：**M5 · 连续性激活（Continuity Activation）**。每个阶段解决不同层次的问题：从稳定基线，到安全承载，再到权威连续性、上下文生命周期、长期记忆整合，最后汇入真实生产路径。
 
 | 阶段 | 重点 | 带来的变化 | 验证边界 |
 | --- | --- | --- | --- |
@@ -42,7 +42,7 @@ M5 是这条分阶段连续性工程路线的最终生产集成与验收阶段�
 | M2 | 权威 Working Set 与跨窗口连续性 | 将连续性落到单一权威 Working Set，加入作用域、前序、原子应用、重放安全和跨窗口投影。 | local/default-off candidate；精确绑定 rehearsal，生产应用留到 M5 |
 | M3 | hot / warm / cold 上下文与 compaction | 建立热上下文、温压缩 episode、冷检索历史的确定性生命周期，并保留 exact anchors。 | local/default-off candidate；通过零传输拦截证明 |
 | M4 | 冻结 Memory G integration | 将 Memory G、Vault、exact recall、Sources 与 M2/M3 上下文连接，保留各自 authority、来源和边界。 | local/default-off candidate；生产整合留到 M5 |
-| M5 | 生产集成与最终验收 | 将 M2/M3/M4 的 producer bridges 与经过复核的修正接入生产，完成 live validation、final acceptance 与授权后的默认激活。 | live proof、独立最终复核、激活后的基线冻结 |
+| M5 · 连续性激活 | 生产集成与最终验收 | 将 M2/M3/M4 的 producer bridges 与经过复核的修正接入生产，完成 live validation、final acceptance 与授权后的默认激活。 | live proof、独立最终复核、激活后的基线冻结 |
 
 ---
 
