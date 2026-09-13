@@ -1,23 +1,25 @@
-# House of Us — frozen M5 portfolio snapshot
+[简体中文](README.md) | [English](README_EN.md)
 
-House of Us is a private, local-first continuity system for an AI companion runtime. It treats continuity as an engineered system boundary: provider output is a candidate, runtime policy evaluates it, and durable state changes pass through explicit contracts, identity checks, and append-only receipts.
+# House of Us — 冻结 M5 作品集快照
 
-This repository is a public portfolio snapshot of the frozen M5 state. It contains the sanitized M5 continuity core and selected deterministic local tests. It is designed for technical review and local inspection; it is not the private House deployment and it does not contain production data, credentials, provider traces, the Android app, or the canonical repository history.
+House of Us 是一个面向 AI 伴侣运行时的私有、本地优先连续性系统（continuity system）。它把连续性视为经过工程化设计的系统边界：provider 输出只是候选，由运行时策略负责评估；持久化状态变更则必须经过明确的契约、身份校验和仅追加式回执（append-only receipts）。
 
-## What M5 demonstrates
+本仓库是冻结 M5 状态的公开作品集快照，包含经过清理、可公开审阅的 M5 连续性核心，以及精选的确定性本地测试，面向技术评审与本地检查。它不是私有 House 部署，也不包含生产数据、凭据、provider trace、Android 应用或私有仓库的 Git 历史。
 
-- A provider-neutral request/response boundary that keeps provider transport separate from House semantics.
-- Candidate, evaluation, and durable-write stages with explicit authority boundaries.
-- Immutable operation identities, idempotency, predecessor binding, and fail-closed recovery paths.
-- SQLite-backed local continuity state with event, Working-Set, context, and outbox structures.
-- Deterministic context shaping and compact provider-visible projections.
-- Prompt-cache identity based on the final provider-facing material rather than an informal semantic label.
-- Local observability and redaction contracts that prevent credentials and raw private bodies from entering ordinary diagnostics.
-- Synthetic, no-provider tests for contract validation, replay resistance, scope handling, cache identity, and trace safety.
+## M5 展示的能力
 
-The private M5 freeze record reports the complete system as **M5 activated and verified**. This export intentionally exposes only the portion that can be safely reviewed outside House.
+- 与 provider 无关的请求/响应边界（provider-neutral boundary），将 provider transport 与 House 语义分离。
+- 候选、评估与持久化写入（durable-write）分阶段处理，并明确划分各自的权限边界。
+- 不可变操作身份、幂等性（idempotency）、前序绑定（predecessor binding）以及 fail-closed 恢复路径。
+- 基于 SQLite 的本地连续性状态，包含事件、工作集（Working Set）、上下文与 outbox 结构。
+- 确定性的上下文整形，以及紧凑的 provider-visible 投影。
+- 基于最终 provider-facing material 生成的 prompt-cache identity，而不是依赖非正式的语义标签。
+- 本地可观测性与脱敏契约，防止凭据和原始私密 body 进入普通诊断信息。
+- 无 provider 的合成测试，用于验证契约、抵抗 replay、处理 scope、校验 cache identity 与 trace 安全性。
 
-## Architecture
+私有 M5 冻结记录将完整系统标记为 **M5 activated and verified**。本公开导出有意只呈现能够在 House 外部安全审阅的部分。
+
+## 架构
 
 ```text
 provider candidate
@@ -38,37 +40,37 @@ durable preparation outbox + receipts
 provider-visible projection and diagnostics
 ```
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the ownership boundaries and [docs/M5_OVERVIEW.md](docs/M5_OVERVIEW.md) for the frozen-snapshot interpretation.
+关于所有权边界，请参阅 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；关于冻结快照的范围与解释，请参阅 [docs/M5_OVERVIEW.md](docs/M5_OVERVIEW.md)。
 
-## How it was built
+## 构建方式与协作分工
 
-Astel owns the product direction and acceptance bar: requirements, architecture, privacy boundaries, prioritization, test strategy, failure analysis, and final validation. Codex and other AI coding agents implemented bounded modules, tests, documentation, and mechanical refactors under that direction. This is product and systems ownership, not a claim that Astel manually authored code she did not write.
+Astel 负责产品方向与验收标准，包括需求、架构决策、隐私边界、优先级、测试策略、失败分析以及最终验证。Codex 和其他 AI coding agents 在这一方向下，负责实现边界明确的模块、测试、文档和机械性工程重构。这体现的是产品与系统所有权，以及对 AI agent 工程协作的组织能力；并不声称 Astel 手工编写了并非由她亲自编写的代码。
 
-## Local inspection
+## 本地检查
 
-Prerequisite: Python 3.10 or newer. The public test slice uses only the Python standard library.
+前置条件：Python 3.10 或更高版本。公开测试切片只使用 Python 标准库。
 
-Windows PowerShell:
+Windows PowerShell：
 
 ```powershell
 $env:PYTHONPATH = "src;tests"
 py -3.14 -m unittest discover -s tests -p "test_*.py"
 ```
 
-macOS/Linux:
+macOS/Linux：
 
 ```bash
 PYTHONPATH=src:tests python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-The tests are synthetic/local and are expected to make zero provider, network, deployment, or canonical-data calls. They exercise the exported core only; a passing run is not proof of the private service, Android APK, subscription route, or live provider configuration.
+这些测试是合成的本地测试，预期不会调用 provider、网络、部署或 canonical data。它们只覆盖公开导出的核心；测试通过并不等于证明私有服务、Android APK、subscription route 或 live provider configuration 已经可用。
 
-## Scope and limitations
+## 范围与限制
 
-The snapshot boundary is the frozen M5 commit recorded in the private repository. POST-M5 and W1 development is not included. The private gateway/UI, Android relay, live MCP/deployment bridge, operational runbooks, chat-history and Memory exports, live traces, screenshots, generated artifacts, and third-party source checkout were omitted because they are private, environment-specific, data-bearing, or unnecessary for portfolio review. The omissions are listed in [docs/PUBLIC_SCOPE.md](docs/PUBLIC_SCOPE.md).
+本快照的边界是私有仓库记录的冻结 M5 commit。POST-M5 与 W1 开发不在其中。私有 gateway/UI、Android relay、live MCP/deployment bridge、运维 runbook、chat-history 与 Memory 导出、live traces、截图、生成物以及第三方源代码 checkout 均未包含，因为它们属于私有内容、依赖特定环境、承载数据，或对作品集审阅并非必要。具体省略项见 [docs/PUBLIC_SCOPE.md](docs/PUBLIC_SCOPE.md)。
 
-This repository is not a turnkey deployment. It does not include a provider key, production endpoint, private configuration, database, or real conversation data. The code is published for portfolio inspection only.
+本仓库不是可直接部署的完整系统，其中不包含 provider key、生产 endpoint、私有配置、数据库或真实对话数据。发布代码的目的仅是作品集展示与技术审阅。
 
-## License status
+## 许可证状态
 
-No open-source license is granted for this portfolio snapshot. All rights are reserved. Dependencies named by the private repository are not redistributed here, and the copied third-party Drivesoid checkout was excluded. One House module contains an adapted MIT-licensed MCP-client component; its attribution and notice are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+本作品集快照不授予开源许可证。保留所有权利。私有仓库中列出的依赖未在此重新分发，复制的第三方 Drivesoid checkout 也已排除。一个 House 模块包含改编自 MIT 许可 MCP-client 组件的代码；其署名与声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
