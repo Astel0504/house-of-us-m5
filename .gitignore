@@ -1,0 +1,42 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*secret*
+*credential*
+
+# Runtime state and local stores
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.log
+trace/
+traces/
+runtime/
+data/
+private/
+exports/
+
+# Python and editor/OS output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build and task output
+build/
+dist/
+*.apk
+*.class
+codex_task_archives/
