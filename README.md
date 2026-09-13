@@ -46,7 +46,7 @@
 
 ---
 
-## M5 做了什么？
+## 冻结 M5 核心展示了什么？
 
 ### 01 · 把模型输出和系统事实分开
 
@@ -58,7 +58,7 @@ Provider 返回的内容首先是 **candidate**，而不是可以直接写入长
 
 ### 02 · 给每次状态变化一个可追踪身份
 
-M5 为持久化操作建立了明确的：
+冻结 M5 核心包含一套明确的持久化操作约束：
 
 - operation identity
 - predecessor binding
@@ -90,7 +90,7 @@ Prompt-cache identity 根据最终 provider-facing material 生成，而不是�
 
 ### 05 · 可观察，但不把私密数据顺手写进日志
 
-M5 的 observability 与 redaction contract 会区分：
+冻结 M5 核心中的 observability 与 redaction contract 会区分：
 
 - 可以用于诊断的结构化信息；
 - 不应该进入普通 trace 的凭据；
@@ -191,7 +191,7 @@ PYTHONPATH=src:tests python3 -m unittest discover -s tests -p 'test_*.py'
 
 所以它需要的不只是“记得更多”，而是一套能让长期状态有边界、有来源、有恢复路径，也有机会随着系统继续生长的基础设施。
 
-M5 解决的是其中最底层的一部分：
+这条 Continuity Program 解决的是其中一组底层问题：
 
 **让 continuity 从一种感觉，变成可以被运行时检查的结构。**
 

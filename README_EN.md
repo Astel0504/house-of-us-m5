@@ -47,7 +47,7 @@ Here, “M5” is not a House of Us version number. It is the final stage—**M5
 
 ---
 
-## What M5 does
+## What the frozen M5 core demonstrates
 
 ### 01 · Separates model output from system truth
 
@@ -59,7 +59,7 @@ This keeps provider transport separate from House semantics and allows the under
 
 ### 02 · Gives durable changes traceable identity
 
-M5 establishes explicit:
+The frozen M5 core carries explicit:
 
 * operation identity
 * predecessor binding
@@ -91,7 +91,7 @@ Caching therefore becomes something the runtime can reason about and verify rath
 
 ### 05 · Keeps observability useful without casually logging private content
 
-M5 includes observability and redaction contracts that distinguish between:
+The frozen M5 core includes observability and redaction contracts that distinguish between:
 
 * structured diagnostic information;
 * credentials that must not enter ordinary traces;
@@ -197,7 +197,7 @@ This is infrastructure for a long-lived AI companion, not a one-session chat dem
 
 That means continuity needs more than “remembering more.” It needs boundaries, provenance, recovery behavior, and room to evolve as the surrounding system changes.
 
-M5 addresses one of the lowest layers of that problem:
+This Continuity Program addresses one of the foundational layers of that problem:
 
 **turning continuity from a feeling into a runtime-checkable structure.**
 
