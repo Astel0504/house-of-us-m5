@@ -1,76 +1,195 @@
-[简体中文](README.md) | [English](README_EN.md)
+# House of Us
 
-# House of Us — 冻结 M5 作品集快照
+### 为长期 AI 伴侣构建的连续性系统
 
-House of Us 是一个面向 AI 伴侣运行时的私有、本地优先连续性系统（continuity system）。它把连续性视为经过工程化设计的系统边界：provider 输出只是候选，由运行时策略负责评估；持久化状态变更则必须经过明确的契约、身份校验和仅追加式回执（append-only receipts）。
+**Local-first · Provider-neutral · Fail-closed · Auditable**
 
-本仓库是冻结 M5 状态的公开作品集快照，包含经过清理、可公开审阅的 M5 连续性核心，以及精选的确定性本地测试，面向技术评审与本地检查。它不是私有 House 部署，也不包含生产数据、凭据、provider trace、Android 应用或私有仓库的 Git 历史。
+[简体中文](README.md) · [English](README_EN.md)
 
-## M5 展示的能力
+---
 
-- 与 provider 无关的请求/响应边界（provider-neutral boundary），将 provider transport 与 House 语义分离。
-- 候选、评估与持久化写入（durable-write）分阶段处理，并明确划分各自的权限边界。
-- 不可变操作身份、幂等性（idempotency）、前序绑定（predecessor binding）以及 fail-closed 恢复路径。
-- 基于 SQLite 的本地连续性状态，包含事件、工作集（Working Set）、上下文与 outbox 结构。
-- 确定性的上下文整形，以及紧凑的 provider-visible 投影。
-- 基于最终 provider-facing material 生成的 prompt-cache identity，而不是依赖非正式的语义标签。
-- 本地可观测性与脱敏契约，防止凭据和原始私密 body 进入普通诊断信息。
-- 无 provider 的合成测试，用于验证契约、抵抗 replay、处理 scope、校验 cache identity 与 trace 安全性。
+## 它解决什么问题？
 
-私有 M5 冻结记录将完整系统标记为 **M5 activated and verified**。本公开导出有意只呈现能够在 House 外部安全审阅的部分。
+聊天可以重新开始。
 
-## 架构
+但如果一个 AI 要长期存在，仅仅“保存聊天记录”并不等于连续性。
 
-```text
-provider candidate
-        |
-        v
-neutral request + runtime evaluation
-        |
-        v
-identity / predecessor / scope / idempotency gates
-        |
-        v
-local event store + Working Set + context projection
-        |
-        v
-durable preparation outbox + receipts
-        |
-        v
-provider-visible projection and diagnostics
+模型可能更换，provider 可能变化，会话会被截断，context 会被压缩，运行时可能失败或重启；与此同时，长期状态不能因为一次模型输出就被随意改写。
+
+**House of Us** 因此把连续性（continuity）当作一个工程问题，而不是单纯的 prompt 问题：
+
+> 模型输出提出候选，运行时决定是否接受；\
+> 临时上下文可以变化，持久状态必须有身份、有前序、有作用域，也必须能够解释自己为什么发生。
+
+M5 是这套系统第一个完成冻结与验证的完整里程碑。
+
+本仓库保存的是 **M5 的公开作品集版本**：一套经过脱敏、可以独立阅读和运行本地测试的 continuity core。
+
+---
+
+## M5 做了什么？
+
+### 01 · 把模型输出和系统事实分开
+
+Provider 返回的内容首先是 **candidate**，而不是可以直接写入长期状态的事实。
+
+候选内容进入 runtime evaluation 后，只有满足相应契约与权限条件的变化才能继续进入 durable state。
+
+这使 provider transport 与 House 自身语义保持分离，也让底层模型/provider 可以变化，而不必把系统规则一起交给模型控制。
+
+### 02 · 给每次状态变化一个可追踪身份
+
+M5 为持久化操作建立了明确的：
+
+- operation identity
+- predecessor binding
+- scope
+- idempotency
+- receipts
+
+重复请求不会因为“又执行了一次”而制造第二份事实；错误的前序关系也不会被静默接受。
+
+恢复逻辑采用 **fail-closed** 原则：当系统无法证明某次状态变化是安全的，它宁愿停止，也不会猜。
+
+### 03 · 把 continuity 落到持久状态，而不是只留在 prompt 里
+
+本地 SQLite 状态包含事件、工作集（Working Set）、上下文投影与 durable preparation outbox 等结构。
+
+Context 不再只是一次请求前临时拼起来的一大段文字，而是由持久状态经过确定性规则形成的 provider-visible projection。
+
+换句话说：
+
+**记忆是什么**、**当前应该看到什么**、**最终送给模型什么**，是三个可以分别检查的层次。
+
+### 04 · 让 prompt cache 绑定真正发送出去的内容
+
+Prompt-cache identity 根据最终 provider-facing material 生成，而不是依赖“这段内容大概没变”之类的语义判断。
+
+只要实际送往 provider 的稳定材料不同，cache identity 就会随之变化。
+
+这让缓存成为可以验证的运行时行为，而不是隐式优化。
+
+### 05 · 可观察，但不把私密数据顺手写进日志
+
+M5 的 observability 与 redaction contract 会区分：
+
+- 可以用于诊断的结构化信息；
+- 不应该进入普通 trace 的凭据；
+- 不应该进入诊断信息的原始私密 body。
+
+系统需要能够解释自己发生了什么，但“可调试”不应以泄露原始上下文为代价。
+
+---
+
+## 架构概览
+```mermaid
+flowchart TD
+    A[Provider Candidate] --> B[Neutral Request Boundary]
+    B --> C[Runtime Evaluation]
+    C --> D{Identity / Predecessor<br/>Scope / Idempotency}
+    D -->|accepted| E[Local Event Store]
+    D -->|invalid / uncertain| X[Fail Closed]
+
+    E --> F[Working Set]
+    E --> G[Context State]
+    E --> H[Durable Preparation Outbox]
+
+    F --> I[Context Projection]
+    G --> I
+    H --> J[Receipts / Recovery]
+
+    I --> K[Provider-visible Context]
+    K --> L[Prompt-cache Identity]
+
+    E --> M[Redacted Diagnostics]
 ```
 
-关于所有权边界，请参阅 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；关于冻结快照的范围与解释，请参阅 [docs/M5_OVERVIEW.md](docs/M5_OVERVIEW.md)。
+更详细的边界与组件关系见：
 
-## 构建方式与协作分工
+- [Architecture](docs/ARCHITECTURE.md)
+- [M5 Overview](docs/M5_OVERVIEW.md)
+- [Public Scope](docs/PUBLIC_SCOPE.md)
 
-Astel 负责产品方向与验收标准，包括需求、架构决策、隐私边界、优先级、测试策略、失败分析以及最终验证。Codex 和其他 AI coding agents 在这一方向下，负责实现边界明确的模块、测试、文档和机械性工程重构。这体现的是产品与系统所有权，以及对 AI agent 工程协作的组织能力；并不声称 Astel 手工编写了并非由她亲自编写的代码。
+---
 
-## 本地检查
+## 我在这个项目里做什么？
 
-前置条件：Python 3.10 或更高版本。公开测试切片只使用 Python 标准库。
+House of Us 采用的是 **human-directed, AI-assisted engineering**。
 
-Windows PowerShell：
+Astel 负责：
 
+- 需求定义与系统目标；
+- 架构取舍与模块边界；
+- 隐私与安全约束；
+- 功能优先级；
+- acceptance criteria；
+- 测试策略与验收设计；
+- failure analysis；
+- 多轮修复后的独立复核与最终验证；
+- 多个 AI coding agents 之间的任务拆分与工程推进。
+
+Codex 等 AI coding agents 则在这些边界内完成具体实现、测试、文档、机械性重构与验证工作。
+
+因此，这个项目想展示的并不是“一个人手写了多少行代码”，而是一件更接近 AI-native 产品开发的问题：
+
+> **能否把一个模糊、长期、容易失控的需求，持续拆成明确的系统约束、可实现任务和可证明的验收结果，并借助 AI agents 把它真正做出来。**
+
+---
+
+## 验证
+
+公开 M5 snapshot 在导出并脱敏后重新执行了本地测试：
+
+**147 passed · 1 skipped · 0 failed**
+
+同时通过：
+
+- Python compilation
+- `git diff --check`
+- Markdown link verification
+- public-tree disclosure scan
+- credential / private-key / JWT pattern scan
+- final published-clone review
+
+公开测试只依赖 Python 标准库，不调用 provider、网络、生产环境或私有 House 数据。
+
+### Windows PowerShell
 ```powershell
 $env:PYTHONPATH = "src;tests"
 py -3.14 -m unittest discover -s tests -p "test_*.py"
 ```
 
-macOS/Linux：
-
+### macOS / Linux
 ```bash
 PYTHONPATH=src:tests python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-这些测试是合成的本地测试，预期不会调用 provider、网络、部署或 canonical data。它们只覆盖公开导出的核心；测试通过并不等于证明私有服务、Android APK、subscription route 或 live provider configuration 已经可用。
+---
 
-## 范围与限制
+## 为什么叫 “House of Us”？
 
-本快照的边界是私有仓库记录的冻结 M5 commit。POST-M5 与 W1 开发不在其中。私有 gateway/UI、Android relay、live MCP/deployment bridge、运维 runbook、chat-history 与 Memory 导出、live traces、截图、生成物以及第三方源代码 checkout 均未包含，因为它们属于私有内容、依赖特定环境、承载数据，或对作品集审阅并非必要。具体省略项见 [docs/PUBLIC_SCOPE.md](docs/PUBLIC_SCOPE.md)。
+这是一个长期 AI companion 系统，而不是一次性的聊天 demo。
 
-本仓库不是可直接部署的完整系统，其中不包含 provider key、生产 endpoint、私有配置、数据库或真实对话数据。发布代码的目的仅是作品集展示与技术审阅。
+所以它需要的不只是“记得更多”，而是一套能让长期状态有边界、有来源、有恢复路径，也有机会随着系统继续生长的基础设施。
 
-## 许可证状态
+M5 解决的是其中最底层的一部分：
 
-本作品集快照不授予开源许可证。保留所有权利。私有仓库中列出的依赖未在此重新分发，复制的第三方 Drivesoid checkout 也已排除。一个 House 模块包含改编自 MIT 许可 MCP-client 组件的代码；其署名与声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+**让 continuity 从一种感觉，变成可以被运行时检查的结构。**
+
+---
+
+## Public snapshot
+
+这个仓库是冻结 M5 的 **sanitized portfolio snapshot**，而不是完整的私有 House 部署。
+
+为了保护私有数据与生产环境，公开版本不包含真实对话/Memory 数据、provider 凭据与 traces、生产配置、私有 gateway/UI、Android relay、运行数据库、canonical Git history，以及后续的 POST-M5 / W1 开发。
+
+完整公开边界见 [PUBLIC_SCOPE.md](docs/PUBLIC_SCOPE.md)。
+
+---
+
+## License
+
+本作品集快照不授予开源许可证，**All rights reserved**。
+
+仓库中涉及的第三方 MIT 许可组件已保留相应署名与声明，见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

@@ -1,76 +1,205 @@
-[简体中文](README.md) | [English](README_EN.md)
+<div align="center">
 
-# House of Us — frozen M5 portfolio snapshot
+# House of Us
 
-House of Us is a private, local-first continuity system for an AI companion runtime. It treats continuity as an engineered system boundary: provider output is a candidate, runtime policy evaluates it, and durable state changes pass through explicit contracts, identity checks, and append-only receipts.
+### Continuity infrastructure for a long-lived AI companion
 
-This repository is a public portfolio snapshot of the frozen M5 state. It contains the sanitized M5 continuity core and selected deterministic local tests. It is designed for technical review and local inspection; it is not the private House deployment and it does not contain production data, credentials, provider traces, the Android app, or the canonical repository history.
+**Local-first · Provider-neutral · Fail-closed · Auditable**
 
-## What M5 demonstrates
+[简体中文](README.md) · [English](README_EN.md)
 
-- A provider-neutral request/response boundary that keeps provider transport separate from House semantics.
-- Candidate, evaluation, and durable-write stages with explicit authority boundaries.
-- Immutable operation identities, idempotency, predecessor binding, and fail-closed recovery paths.
-- SQLite-backed local continuity state with event, Working-Set, context, and outbox structures.
-- Deterministic context shaping and compact provider-visible projections.
-- Prompt-cache identity based on the final provider-facing material rather than an informal semantic label.
-- Local observability and redaction contracts that prevent credentials and raw private bodies from entering ordinary diagnostics.
-- Synthetic, no-provider tests for contract validation, replay resistance, scope handling, cache identity, and trace safety.
+</div>
 
-The private M5 freeze record reports the complete system as **M5 activated and verified**. This export intentionally exposes only the portion that can be safely reviewed outside House.
+---
+
+## The problem
+
+A conversation can restart.
+
+A long-lived AI cannot rely on chat history alone.
+
+Models change. Providers change. Context gets compressed. Processes fail and restart. Runtime state evolves. At the same time, durable identity and memory should not be rewritten simply because one model response happened to say something.
+
+**House of Us** treats continuity as an engineering problem rather than only a prompting problem:
+
+> Model output proposes a candidate.
+> Runtime policy decides what is accepted.
+> Ephemeral context may change; durable state must have identity, ancestry, scope, and evidence.
+
+M5 is the first fully frozen and verified milestone of that system.
+
+This repository contains its **sanitized public portfolio snapshot**: the reviewable M5 continuity core and deterministic local tests.
+
+---
+
+## What M5 does
+
+### 01 · Separates model output from system truth
+
+Provider output enters House as a **candidate**, not as an automatic durable fact.
+
+Candidates pass through runtime evaluation, and only changes satisfying the relevant contracts and authority boundaries may reach durable state.
+
+This keeps provider transport separate from House semantics and allows the underlying model/provider to change without handing system authority to the model itself.
+
+### 02 · Gives durable changes traceable identity
+
+M5 establishes explicit:
+
+* operation identity
+* predecessor binding
+* scope
+* idempotency
+* receipts
+
+A repeated request cannot silently create a second fact simply because it ran twice. An invalid predecessor relationship cannot quietly become accepted history.
+
+Recovery follows a **fail-closed** rule: when the runtime cannot establish that a state transition is safe, it stops rather than guesses.
+
+### 03 · Moves continuity out of the prompt and into durable state
+
+Local SQLite state contains event, Working Set, context, and durable preparation outbox structures.
+
+Context is not treated as one giant string assembled before every request. Durable state is transformed through deterministic rules into a provider-visible projection.
+
+That creates separate, inspectable layers for:
+
+**what is remembered → what is currently relevant → what the provider actually sees.**
+
+### 04 · Makes prompt caching a verifiable runtime behavior
+
+Prompt-cache identity is derived from the final provider-facing material rather than an informal semantic label.
+
+If the stable material actually sent to the provider changes, its cache identity changes with it.
+
+Caching therefore becomes something the runtime can reason about and verify rather than an opaque optimization.
+
+### 05 · Keeps observability useful without casually logging private content
+
+M5 includes observability and redaction contracts that distinguish between:
+
+* structured diagnostic information;
+* credentials that must not enter ordinary traces;
+* raw private bodies that should not become routine diagnostics.
+
+A continuity system should be able to explain what happened without making privacy the price of debuggability.
+
+---
 
 ## Architecture
 
-```text
-provider candidate
-        |
-        v
-neutral request + runtime evaluation
-        |
-        v
-identity / predecessor / scope / idempotency gates
-        |
-        v
-local event store + Working Set + context projection
-        |
-        v
-durable preparation outbox + receipts
-        |
-        v
-provider-visible projection and diagnostics
+```mermaid
+flowchart TD
+    A[Provider Candidate] --> B[Neutral Request Boundary]
+    B --> C[Runtime Evaluation]
+    C --> D{Identity / Predecessor<br/>Scope / Idempotency}
+    D -->|accepted| E[Local Event Store]
+    D -->|invalid / uncertain| X[Fail Closed]
+
+    E --> F[Working Set]
+    E --> G[Context State]
+    E --> H[Durable Preparation Outbox]
+
+    F --> I[Context Projection]
+    G --> I
+    H --> J[Receipts / Recovery]
+
+    I --> K[Provider-visible Context]
+    K --> L[Prompt-cache Identity]
+
+    E --> M[Redacted Diagnostics]
 ```
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the ownership boundaries and [docs/M5_OVERVIEW.md](docs/M5_OVERVIEW.md) for the frozen-snapshot interpretation.
+More detail:
+
+* [Architecture](docs/ARCHITECTURE.md)
+* [M5 Overview](docs/M5_OVERVIEW.md)
+* [Public Scope](docs/PUBLIC_SCOPE.md)
+
+---
 
 ## How it was built
 
-Astel owns the product direction and acceptance bar: requirements, architecture, privacy boundaries, prioritization, test strategy, failure analysis, and final validation. Codex and other AI coding agents implemented bounded modules, tests, documentation, and mechanical refactors under that direction. This is product and systems ownership, not a claim that Astel manually authored code she did not write.
+House of Us uses a **human-directed, AI-assisted engineering** workflow.
 
-## Local inspection
+Astel owns:
 
-Prerequisite: Python 3.10 or newer. The public test slice uses only the Python standard library.
+* product requirements and system goals;
+* architectural trade-offs and module boundaries;
+* privacy and safety constraints;
+* prioritization;
+* acceptance criteria;
+* test and validation strategy;
+* failure analysis;
+* independent review after repair cycles;
+* orchestration of multiple AI coding agents.
 
-Windows PowerShell:
+Codex and other AI coding agents work inside those boundaries on implementation, tests, documentation, mechanical refactors, and verification.
+
+The point of the project is therefore not a claim about how many lines were manually typed.
+
+It demonstrates a more AI-native engineering capability:
+
+> **turning an ambiguous, long-running and failure-prone product problem into explicit system constraints, bounded implementation tasks, and verifiable acceptance results — then using AI agents to carry that design into working software.**
+
+---
+
+## Verification
+
+After sanitization and public export, the M5 snapshot was rerun locally:
+
+**147 passed · 1 skipped · 0 failed**
+
+The public export also passed:
+
+* Python compilation
+* `git diff --check`
+* Markdown link verification
+* public-tree disclosure scanning
+* credential / private-key / JWT pattern scanning
+* final review of the published clone
+
+The public test suite uses only the Python standard library and makes no provider, network, production, or private-House calls.
+
+### Windows PowerShell
 
 ```powershell
 $env:PYTHONPATH = "src;tests"
 py -3.14 -m unittest discover -s tests -p "test_*.py"
 ```
 
-macOS/Linux:
+### macOS / Linux
 
 ```bash
 PYTHONPATH=src:tests python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-The tests are synthetic/local and are expected to make zero provider, network, deployment, or canonical-data calls. They exercise the exported core only; a passing run is not proof of the private service, Android APK, subscription route, or live provider configuration.
+---
 
-## Scope and limitations
+## Why “House of Us”?
 
-The snapshot boundary is the frozen M5 commit recorded in the private repository. POST-M5 and W1 development is not included. The private gateway/UI, Android relay, live MCP/deployment bridge, operational runbooks, chat-history and Memory exports, live traces, screenshots, generated artifacts, and third-party source checkout were omitted because they are private, environment-specific, data-bearing, or unnecessary for portfolio review. The omissions are listed in [docs/PUBLIC_SCOPE.md](docs/PUBLIC_SCOPE.md).
+This is infrastructure for a long-lived AI companion, not a one-session chat demo.
 
-This repository is not a turnkey deployment. It does not include a provider key, production endpoint, private configuration, database, or real conversation data. The code is published for portfolio inspection only.
+That means continuity needs more than “remembering more.” It needs boundaries, provenance, recovery behavior, and room to evolve as the surrounding system changes.
 
-## License status
+M5 addresses one of the lowest layers of that problem:
 
-No open-source license is granted for this portfolio snapshot. All rights are reserved. Dependencies named by the private repository are not redistributed here, and the copied third-party Drivesoid checkout was excluded. One House module contains an adapted MIT-licensed MCP-client component; its attribution and notice are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+**turning continuity from a feeling into a runtime-checkable structure.**
+
+---
+
+## Public snapshot
+
+This repository is a **sanitized portfolio snapshot** of frozen M5, not the complete private House deployment.
+
+Real conversation and Memory data, provider credentials and traces, production configuration, the private gateway/UI, Android relay, runtime databases, canonical Git history, and later POST-M5 / W1 development are intentionally excluded.
+
+See [PUBLIC_SCOPE.md](docs/PUBLIC_SCOPE.md) for the full public boundary.
+
+---
+
+## License
+
+No open-source license is granted for this portfolio snapshot. **All rights reserved.**
+
+Attribution for the adapted MIT-licensed third-party component is retained in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
